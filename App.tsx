@@ -1,6 +1,7 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 
 // useState: nos permitirá guardar información temporalmente mientras utilizamos la aplicación. Por ejemplo, recordar qué pantalla estamos viendo.
@@ -13,10 +14,35 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [songTitle, setSongTitle] = useState('');
   const [artist, setArtist] = useState('');
-  const [songs, setSongs] = useState<{ title: string; artist: string; mood: string }[]>([]);
+  const [songs, setSongs] = useState<{ title: string; artist: string; mood: string; note: string }[]>([]);
+  //guarda el texto que escribes para buscar una canción.
+  //guarda las canciones que nos devuelve iTunes.
+  const [searchText, setSearchText] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedMood, setSelectedMood] = useState('');
+  const [personalNote, setPersonalNote] = useState('');
 
-  const saveSong = () => {
+
+
+  {/* Load saved songs when the app starts */}
+  const loadSongs = async () => {
+    try {
+      const savedSongs = await AsyncStorage.getItem('songs');
+
+      if (savedSongs !== null) {
+        setSongs(JSON.parse(savedSongs));
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Could not load your saved songs.');
+    }
+  };
+
+  {/* Save songs to AsyncStorage whenever the songs state changes */}
+  useEffect(() => {
+    loadSongs();
+  }, []);
+
+  const saveSong = async () => {
   if (songTitle.trim() === '' || artist.trim() === '') {
     Alert.alert(
       'Missing information',
@@ -26,21 +52,61 @@ export default function App() {
   }
 
   const newSong = {
-  title: songTitle,
-  artist: artist,
-  mood: selectedMood,
-};
+    title: songTitle,
+    artist: artist,
+    mood: selectedMood,
+    note: personalNote,
+  };
 
-  setSongs([...songs, newSong]);
+  {/* Update the songs state and save to AsyncStorage */}
+  const updatedSongs = [...songs, newSong];
+
+  try {
+    await AsyncStorage.setItem('songs', JSON.stringify(updatedSongs));
+    setSongs(updatedSongs);
+  } catch (error) {
+    Alert.alert('Error', 'Could not save your song.');
+    return;
+  }
 
   setSongTitle('');
   setArtist('');
   setCurrentScreen('home');
   setSelectedMood('');
+  setPersonalNote('');
 };
 
+  const deleteSong = async (index: number) => {
+    const updatedSongs = songs.filter((song, songIndex) => songIndex !== index);
 
+    try {
+      await AsyncStorage.setItem('songs', JSON.stringify(updatedSongs));
+      setSongs(updatedSongs);
+    } catch (error) {
+      Alert.alert('Error', 'Could not delete the song.');
+    }
+  };
 
+  // Search for real songs using the iTunes API
+  // Esta función hace una petición a iTunes y guarda los resultados en searchResults.
+  const searchSongs = async () => {
+    if (searchText.trim() === '') {
+      Alert.alert('Search', 'Please enter a song or artist name.');
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://itunes.apple.com/search?term=${encodeURIComponent(searchText)}&entity=song&limit=10`
+      );
+
+      const data = await response.json();
+
+      setSearchResults(data.results);
+    } catch (error) {
+      Alert.alert('Error', 'Could not search for songs. Please try again.');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -80,6 +146,13 @@ export default function App() {
 
             <Text style={styles.sectionTitle}>Your music diary</Text>
 
+            <Pressable
+              style={styles.addButton}
+              onPress={() => setCurrentScreen('diary')}
+            >
+              <Text style={styles.addButtonText}>My Diary</Text>
+            </Pressable>
+
 
             <Pressable                                                  //creates a button
               style={styles.addButton}
@@ -105,6 +178,12 @@ export default function App() {
                     <Text style={styles.emptyTitle}>{song.title}</Text>
                     <Text style={styles.emptyText}>{song.artist}</Text>
                     <Text style={styles.emptyText}>Mood: {song.mood}</Text>
+                    <Text style={styles.emptyText}>Note: {song.note}</Text>
+                    <Pressable
+                      onPress={() => deleteSong(index)}
+                    >
+                      <Text style={styles.cancelButtonText}>🗑️ Delete song</Text>
+                    </Pressable>
                   </View>
                 ))}
               </View>
@@ -156,10 +235,49 @@ export default function App() {
               </Pressable>
             </View>
 
+
             <Text style={styles.subtitle}>
               Selected mood: {selectedMood || 'None'}
             </Text>
 
+            <Text style={styles.inputLabel}>Find a real song</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Search for a song or artist..."
+              placeholderTextColor="#9992AA"
+              value={searchText}
+              onChangeText={setSearchText}
+            />
+
+            <Pressable
+              style={styles.addButton}
+              onPress={searchSongs}
+            >
+              <Text style={styles.addButtonText}>Search</Text>
+            </Pressable>
+
+            
+            {searchResults.map((song, index) => (
+              <Pressable
+                key={song.trackId}
+                style={styles.songItem}
+                onPress={() => {
+                  setSongTitle(song.trackName);
+                  setArtist(song.artistName);
+                  setSearchText('');
+                  setSearchResults([]);
+                }}
+              >
+                <Text style={styles.emptyTitle}>
+                  {song.trackName}
+                </Text>
+
+                <Text style={styles.emptyText}>
+                  {song.artistName}
+                </Text>
+              </Pressable>
+            ))}
 
 
             <Text style={styles.inputLabel}>Song title</Text>
@@ -181,6 +299,18 @@ export default function App() {
               value={artist}
               onChangeText={setArtist}
             />
+
+          <Text style={styles.inputLabel}>Personal note</Text>
+
+          <TextInput
+            style={styles.noteInput}
+            placeholder="Write a memory or thought about this song..."
+            placeholderTextColor="#9992AA"
+            value={personalNote}
+            onChangeText={setPersonalNote}
+            multiline={true}
+          />
+
             <Pressable
               style={styles.addButton}
               onPress={saveSong}
@@ -197,6 +327,48 @@ export default function App() {
 
           </View>
         )}
+
+        {/*creates the diary screen, which shows the saved songs and their details*/}
+        {currentScreen === 'diary' && (
+          <View style={styles.header}>
+            <Text style={styles.logo}>MY MUSIC DIARY</Text>
+
+            <Text style={styles.greeting}>My Diary</Text>
+
+            <Text style={styles.subtitle}>
+              All your songs and memories in one place.
+            </Text>
+
+            {/*if there are no songs, it shows a message. If there are songs, it maps through them and displays their details*/}
+            {songs.length === 0 ? (
+              <Text style={styles.emptyText}>
+                You haven't added any songs yet.
+              </Text>
+            ) : (
+              songs.map((song, index) => (
+                <View key={index} style={styles.songItem}>
+                  <Text style={styles.emptyTitle}>{song.title}</Text>
+                  <Text style={styles.emptyText}>{song.artist}</Text>
+                  <Text style={styles.emptyText}>Mood: {song.mood}</Text>
+                  <Text style={styles.emptyText}>Note: {song.note}</Text>
+                  <Pressable
+                    onPress={() => deleteSong(index)}
+                  >
+                    <Text style={styles.cancelButtonText}>🗑️ Delete song</Text>
+                  </Pressable>
+                </View>
+              ))
+            )}
+
+            <Pressable
+              style={styles.cancelButton}
+              onPress={() => setCurrentScreen('home')}
+            >
+              <Text style={styles.cancelButtonText}>Back to Home</Text>
+            </Pressable>
+          </View>
+        )}
+
       </ScrollView>
     </View>
   );
@@ -365,6 +537,16 @@ const styles = StyleSheet.create({
     color: '#E6DCFF',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+
+  noteInput: {
+    backgroundColor: '#252037',
+    color: '#FFFFFF',
+    padding: 15,
+    borderRadius: 12,
+    fontSize: 15,
+    minHeight: 100,
+    textAlignVertical: 'top',
   },
   
 });
