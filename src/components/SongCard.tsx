@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import { Song } from '../types';
 import { styles } from '../styles/styles';
 
@@ -12,9 +12,13 @@ export default function SongCard({ song, onDelete }: Props) {
   return (
     <View style={styles.songCard}>
       <View style={styles.songCardTop}>
-        <View style={styles.miniRecord}>
-          <View style={styles.miniRecordCentre} />
-        </View>
+        {song.artworkUrl ? (
+          <Image source={{ uri: song.artworkUrl }} style={styles.songArtwork} />
+        ) : (
+          <View style={styles.miniRecord}>
+            <View style={styles.miniRecordCentre} />
+          </View>
+        )}
         <View style={styles.songDetails}>
           <Text style={styles.songTitle}>{song.title}</Text>
           <Text style={styles.songArtist}>by {song.artist}</Text>

@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useSongs } from '../context/SongsContext';
@@ -9,6 +9,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
   const { songs } = useSongs();
+
+  // The most recently added song, or undefined if the diary is empty.
+  const latestSong = songs[songs.length - 1];
 
   return (
     <ScreenFrame>
@@ -49,13 +52,21 @@ export default function HomeScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.nowPlayingCard}>
-        <View style={styles.albumPlaceholder}>
-          <Text style={styles.albumHeart}>♥</Text>
-        </View>
+        {latestSong?.artworkUrl ? (
+          <Image source={{ uri: latestSong.artworkUrl }} style={styles.albumArtwork} />
+        ) : (
+          <View style={styles.albumPlaceholder}>
+            <Text style={styles.albumHeart}>♥</Text>
+          </View>
+        )}
         <View style={styles.nowPlayingText}>
           <Text style={styles.nowPlayingLabel}>NOW PLAYING IN YOUR HEART...</Text>
-          <Text style={styles.nowPlayingTitle}>your memories</Text>
-          <Text style={styles.nowPlayingArtist}>one song at a time</Text>
+          <Text style={styles.nowPlayingTitle}>
+            {latestSong ? latestSong.title : 'your memories'}
+          </Text>
+          <Text style={styles.nowPlayingArtist}>
+            {latestSong ? latestSong.artist : 'one song at a time'}
+          </Text>
         </View>
       </View>
 
@@ -85,8 +96,8 @@ export default function HomeScreen({ navigation }: Props) {
             Your story starts here. Save the songs that feel like you.
           </Text>
         ) : (
-          songs.slice(0, 3).map((song) => (
-            <View key={song.id} style={styles.recentSong}>
+          songs.slice(-3).reverse().map((song) => (
+              <View key={song.id} style={styles.recentSong}>
               <Text style={styles.recentSongTitle}>{song.title}</Text>
               <Text style={styles.recentSongArtist}>{song.artist}</Text>
             </View>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, TextInput, Alert } from 'react-native';
+import { View, Text, Pressable, TextInput, Alert, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { SearchResult } from '../types';
@@ -20,6 +20,8 @@ export default function AddSongScreen({ navigation }: Props) {
   const [artist, setArtist] = useState('');
   const [selectedMood, setSelectedMood] = useState('');
   const [personalNote, setPersonalNote] = useState('');
+  // The iTunes result the user picked, so we can keep its artwork and preview.
+  const [selectedSong, setSelectedSong] = useState<SearchResult | null>(null);
 
   // Search the iTunes catalogue and show the results.
   const searchSongs = async () => {
@@ -42,6 +44,7 @@ export default function AddSongScreen({ navigation }: Props) {
 
   // Fill the form with the song the user tapped.
   const chooseSong = (song: SearchResult) => {
+    setSelectedSong(song);
     setSongTitle(song.trackName);
     setArtist(song.artistName);
     setSearchText('');
@@ -63,6 +66,8 @@ export default function AddSongScreen({ navigation }: Props) {
       artist: artist.trim(),
       mood: selectedMood,
       note: personalNote.trim(),
+      artworkUrl: selectedSong?.artworkUrl100,
+      previewUrl: selectedSong?.previewUrl,
     });
 
     if (saved) {
@@ -97,9 +102,14 @@ export default function AddSongScreen({ navigation }: Props) {
               style={styles.searchResult}
               onPress={() => chooseSong(song)}
             >
-              <Text style={styles.searchResultTitle}>{song.trackName}</Text>
-              <Text style={styles.searchResultArtist}>{song.artistName}</Text>
-              <Text style={styles.searchResultChoose}>TAP TO CHOOSE  ♡</Text>
+              {song.artworkUrl100 && (
+                <Image source={{ uri: song.artworkUrl100 }} style={styles.searchArtwork} />
+              )}
+              <View style={styles.searchResultText}>
+                <Text style={styles.searchResultTitle}>{song.trackName}</Text>
+                <Text style={styles.searchResultArtist}>{song.artistName}</Text>
+                <Text style={styles.searchResultChoose}>TAP TO CHOOSE  ♡</Text>
+              </View>
             </Pressable>
           ))}
 

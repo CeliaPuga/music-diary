@@ -444,6 +444,8 @@ export const styles = StyleSheet.create({
     borderColor: '#D995A3',
     padding: 10,
     marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   searchResultTitle: {
     color: '#704254',
@@ -652,5 +654,28 @@ export const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 1,
     fontFamily: 'monospace',
+  },
+    searchArtwork: {
+    width: 48,
+    height: 48,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#D995A3',
+  },
+  searchResultText: {
+    flex: 1,
+  },
+  songArtwork: {
+    width: 43,
+    height: 43,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#E2A6B1',
+  },
+  albumArtwork: {
+    width: 54,
+    height: 54,
+    borderWidth: 3,
+    borderColor: '#E8AEB8',
   },
 });
