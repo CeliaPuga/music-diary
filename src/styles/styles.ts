@@ -698,4 +698,26 @@ export const styles = StyleSheet.create({
     letterSpacing: 1,
     fontFamily: 'monospace',
   },
+    settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  settingLabel: {
+    color: '#704254',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    fontFamily: 'monospace',
+  },
+  reminderStatus: {
+    color: '#9A6572',
+    fontSize: 10,
+    marginTop: 14,
+    textAlign: 'center',
+    fontFamily: 'monospace',
+  },
+  disabled: {
+    opacity: 0.4,
+  },
 });

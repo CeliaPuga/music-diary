@@ -84,7 +84,16 @@ export default function HomeScreen({ navigation }: Props) {
         >
           <Text style={styles.secondaryButtonText}>♡  OPEN MY DIARY  ♡</Text>
         </Pressable>
+
+        <Pressable
+          style={styles.secondaryButton}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Text style={styles.secondaryButtonText}>⏰  DAILY REMINDER</Text>
+        </Pressable>
       </View>
+
+      
 
       <View style={styles.homeFooterCard}>
         <Text style={styles.footerHeading}>YOUR LITTLE COLLECTION</Text>

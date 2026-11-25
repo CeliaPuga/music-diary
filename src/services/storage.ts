@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Song } from '../types';
-
+import { Song, ReminderSettings } from '../types';
 const STORAGE_KEY = 'songs';
 
 // Read all songs from device storage.
@@ -27,4 +26,20 @@ export async function loadSongs(): Promise<Song[]> {
 // Overwrite the stored list with the given songs.
 export async function saveSongs(songs: Song[]): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(songs));
+}
+
+const REMINDER_KEY = 'reminder';
+
+// Reminder is off by default, at 21:00.
+export const DEFAULT_REMINDER: ReminderSettings = { enabled: false, hour: 21, minute: 0 };
+
+// Read the reminder settings from device storage.
+export async function loadReminder(): Promise<ReminderSettings> {
+  const saved = await AsyncStorage.getItem(REMINDER_KEY);
+  return saved === null ? DEFAULT_REMINDER : JSON.parse(saved);
+}
+
+// Save the reminder settings to device storage.
+export async function saveReminder(reminder: ReminderSettings): Promise<void> {
+  await AsyncStorage.setItem(REMINDER_KEY, JSON.stringify(reminder));
 }

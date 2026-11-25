@@ -18,3 +18,17 @@ export type SearchResult = {
   artworkUrl100?: string;
   previewUrl?: string;
 };
+
+// The user's daily reminder preferences.
+export type ReminderSettings = {
+  enabled: boolean;
+  hour: number;
+  minute: number;
+};
+
+export type RootStackParamList = {
+  Home: undefined;
+  AddSong: undefined;
+  Diary: undefined;
+  Settings: undefined;
+};

@@ -5,8 +5,13 @@ import { RootStackParamList } from './src/navigation/types';
 import HomeScreen from './src/screens/HomeScreen';
 import AddSongScreen from './src/screens/AddSongScreen';
 import DiaryScreen from './src/screens/DiaryScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import { configureNotifications } from './src/services/notifications';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+// Must run once, before any notification arrives.
+configureNotifications();
+
 
 export default function App() {
   return (
@@ -19,6 +24,7 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="AddSong" component={AddSongScreen} />
           <Stack.Screen name="Diary" component={DiaryScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />          
         </Stack.Navigator>
       </NavigationContainer>
     </SongsProvider>
