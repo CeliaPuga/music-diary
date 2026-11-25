@@ -6,6 +6,7 @@ import ScreenFrame from '../components/ScreenFrame';
 import SongCard from '../components/SongCard';
 import { styles } from '../styles/styles';
 import { usePreviewPlayer } from '../hooks/usePreviewPlayer';
+import { haptics } from '../services/haptics';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Diary'>;
 
@@ -20,8 +21,14 @@ export default function DiaryScreen({ navigation }: Props) {
       'Delete song',
       'Are you sure you want to remove this song from your diary?',
       [
-        { text: 'Keep it', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => deleteSong(id) },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            haptics.warning();
+            deleteSong(id);
+          },
+        },
       ]
     );
   };

@@ -8,6 +8,7 @@ import { useSongs } from '../context/SongsContext';
 import ScreenFrame from '../components/ScreenFrame';
 import { MOODS } from '../constants/moods';
 import { styles, placeholderColor } from '../styles/styles';
+import { haptics } from '../services/haptics';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddSong'>;
 
@@ -44,6 +45,7 @@ export default function AddSongScreen({ navigation }: Props) {
 
   // Fill the form with the song the user tapped.
   const chooseSong = (song: SearchResult) => {
+    haptics.select();
     setSelectedSong(song);
     setSongTitle(song.trackName);
     setArtist(song.artistName);
@@ -71,6 +73,7 @@ export default function AddSongScreen({ navigation }: Props) {
     });
 
     if (saved) {
+      haptics.success();
       navigation.goBack();
     }
   };
@@ -144,8 +147,10 @@ export default function AddSongScreen({ navigation }: Props) {
                   styles.moodButton,
                   selectedMood === mood.name && styles.moodButtonSelected,
                 ]}
-                onPress={() => setSelectedMood(mood.name)}
-              >
+                onPress={() => {
+                  haptics.select();
+                  setSelectedMood(mood.name);
+                }}              >
                 <Text
                   style={[
                     styles.moodButtonText,

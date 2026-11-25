@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { Song } from '../types';
+import { haptics } from '../services/haptics';
 
 // Plays the 30-second iTunes preview of one song at a time.
 export function usePreviewPlayer() {
@@ -22,6 +23,7 @@ export function usePreviewPlayer() {
   // Start the song's preview, or stop it if it is already playing.
   const togglePreview = (song: Song) => {
     if (!song.previewUrl) return;
+    haptics.tap();
 
     if (playingId === song.id) {
       player.pause();
