@@ -7,6 +7,8 @@ import SongCard from '../components/SongCard';
 import { styles } from '../styles/styles';
 import { usePreviewPlayer } from '../hooks/usePreviewPlayer';
 import { haptics } from '../services/haptics';
+import { useState } from 'react';
+import { MOODS } from '../constants/moods';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Diary'>;
 
@@ -14,6 +16,19 @@ export default function DiaryScreen({ navigation }: Props) {
   const { songs, deleteSong } = useSongs();
 
   const { playingId, togglePreview } = usePreviewPlayer();
+
+  // Selected mood filter, or null to show every song.
+  const [moodFilter, setMoodFilter] = useState<string | null>(null);
+
+  // Newest songs first, then keep only the ones that match the filter.
+  const visibleSongs = [...songs]
+    .reverse()
+    .filter((song) => moodFilter === null || song.mood === moodFilter);
+
+  const chooseFilter = (mood: string | null) => {
+    haptics.select();
+    setMoodFilter(mood);
+  };
 
   // Ask for confirmation before deleting a song.
   const confirmDelete = (id: string) => {
@@ -45,8 +60,11 @@ export default function DiaryScreen({ navigation }: Props) {
 
         <View style={styles.diaryIntro}>
           <Text style={styles.diaryIntroTitle}>♡ THE SOUNDTRACK OF YOU ♡</Text>
+          {/* Show how many songs are visible, and how many are in the diary. Uses filters*/}
           <Text style={styles.diaryIntroText}>
-            {songs.length} {songs.length === 1 ? 'special song' : 'special songs'} in your collection
+            {moodFilter
+              ? `${visibleSongs.length} of ${songs.length} songs feel ${moodFilter.toLowerCase()}`
+              : `${songs.length} ${songs.length === 1 ? 'special song' : 'special songs'} in your collection`}
           </Text>
         </View>
 
@@ -65,15 +83,59 @@ export default function DiaryScreen({ navigation }: Props) {
             </Pressable>
           </View>
         ) : (
-          songs.map((song) => (
-            <SongCard
-              key={song.id}
-              song={song}
-              onDelete={confirmDelete}
-              isPlaying={playingId === song.id}
-              onTogglePreview={togglePreview}
-            />
-          ))
+          <>
+            <View style={styles.filterRow}>
+              <Pressable
+                style={[styles.filterChip, moodFilter === null && styles.filterChipSelected]}
+                onPress={() => chooseFilter(null)}
+              >
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    moodFilter === null && styles.filterChipTextSelected,
+                  ]}
+                >
+                  ALL
+                </Text>
+              </Pressable>
+
+              {MOODS.map((mood) => (
+                <Pressable
+                  key={mood.name}
+                  style={[
+                    styles.filterChip,
+                    moodFilter === mood.name && styles.filterChipSelected,
+                  ]}
+                  onPress={() => chooseFilter(mood.name)}
+                >
+                  <Text
+                    style={[
+                      styles.filterChipText,
+                      moodFilter === mood.name && styles.filterChipTextSelected,
+                    ]}
+                  >
+                    {mood.symbol} {mood.name.toUpperCase()}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {visibleSongs.length === 0 ? (
+              <Text style={styles.filterEmpty}>
+                no {moodFilter?.toLowerCase()} songs yet ♡
+              </Text>
+            ) : (
+              visibleSongs.map((song) => (
+                <SongCard
+                  key={song.id}
+                  song={song}
+                  onDelete={confirmDelete}
+                  isPlaying={playingId === song.id}
+                  onTogglePreview={togglePreview}
+                />
+              ))
+            )}
+          </>
         )}
 
         <Pressable style={styles.primaryButton} onPress={() => navigation.goBack()}>

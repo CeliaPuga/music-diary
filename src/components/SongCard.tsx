@@ -1,6 +1,7 @@
 import { View, Text, Pressable, Image } from 'react-native';
 import { Song } from '../types';
 import { styles } from '../styles/styles';
+import { MOODS } from '../constants/moods';
 
 type Props = {
   song: Song;
@@ -12,6 +13,14 @@ type Props = {
 
 // One saved song in the diary, with its mood, note and a delete button.
 export default function SongCard({ song, onDelete, isPlaying, onTogglePreview }: Props) {
+  // Find the symbol for this song's mood (e.g. ☀ for Happy), if it has one.
+  const moodInfo = MOODS.find((mood) => mood.name === song.mood);
+
+  // Turn the ISO date into something readable, e.g. "25 NOV 2026".
+  const savedDate = new Date(song.createdAt)
+    .toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    .toUpperCase();
+
   return (
     <View style={styles.songCard}>
       <View style={styles.songCardTop}>
@@ -29,7 +38,9 @@ export default function SongCard({ song, onDelete, isPlaying, onTogglePreview }:
       </View>
 
       <View style={styles.songMeta}>
-        <Text style={styles.songMetaText}>MOOD: {song.mood || 'NOT SET'}</Text>
+        <Text style={styles.songMetaText}>
+          {moodInfo ? `${moodInfo.symbol} ${moodInfo.name.toUpperCase()}` : 'NO MOOD'}  ·  {savedDate}
+        </Text>
       </View>
 
       {/* Solo aparece si la canción tiene previewUrl. Las antiguas y las escritas a mano no tendrán botón. */}

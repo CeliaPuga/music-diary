@@ -720,4 +720,38 @@ export const styles = StyleSheet.create({
   disabled: {
     opacity: 0.4,
   },
+    filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 12,
+  },
+  filterChip: {
+    backgroundColor: '#FCE7E3',
+    borderWidth: 2,
+    borderColor: '#E3AAB4',
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+  },
+  filterChipSelected: {
+    backgroundColor: '#C8798C',
+    borderColor: '#9E526B',
+  },
+  filterChipText: {
+    color: '#884E62',
+    fontSize: 8,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    fontFamily: 'monospace',
+  },
+  filterChipTextSelected: {
+    color: '#FFF5EF',
+  },
+  filterEmpty: {
+    color: '#A47780',
+    fontSize: 11,
+    textAlign: 'center',
+    paddingVertical: 20,
+    fontFamily: 'monospace',
+  },
 });

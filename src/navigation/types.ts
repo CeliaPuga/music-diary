@@ -4,4 +4,5 @@ export type RootStackParamList = {
   Home: undefined;
   AddSong: undefined;
   Diary: undefined;
+  Settings: undefined;
 };
