@@ -21,6 +21,9 @@ export default function DiaryScreen({ navigation }: Props) {
       'Delete song',
       'Are you sure you want to remove this song from your diary?',
       [
+        // Button 1: closes the alert and does nothing.
+        { text: 'Keep it', style: 'cancel' },
+        // Button 2: deletes the song.
         {
           text: 'Delete',
           style: 'destructive',
