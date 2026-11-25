@@ -627,13 +627,6 @@ export const styles = StyleSheet.create({
     marginTop: 10,
     fontStyle: 'italic',
   },
-  deleteButton: {
-    borderTopWidth: 1,
-    borderColor: '#EAC3C8',
-    marginTop: 10,
-    paddingTop: 10,
-    alignItems: 'flex-end',
-  },
   deleteButtonText: {
     color: '#A45D70',
     fontSize: 9,
@@ -753,5 +746,13 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 20,
     fontFamily: 'monospace',
+  },
+    cardActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderColor: '#EAC3C8',
+    marginTop: 10,
+    paddingTop: 10,
   },
 });

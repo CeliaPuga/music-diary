@@ -132,6 +132,7 @@ export default function DiaryScreen({ navigation }: Props) {
                   onDelete={confirmDelete}
                   isPlaying={playingId === song.id}
                   onTogglePreview={togglePreview}
+                  onEdit={(id) => navigation.navigate('AddSong', { songId: id })}
                 />
               ))
             )}

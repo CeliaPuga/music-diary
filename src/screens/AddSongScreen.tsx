@@ -12,17 +12,23 @@ import { haptics } from '../services/haptics';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddSong'>;
 
-export default function AddSongScreen({ navigation }: Props) {
-  const { addSong } = useSongs();
+export default function AddSongScreen({ navigation, route }: Props) {
+    const { songs, addSong, updateSong } = useSongs();
+
+  // If we came here with a songId, we are editing that song.
+  const songToEdit = songs.find((song) => song.id === route.params?.songId);
+  const isEditing = !!songToEdit;
 
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [songTitle, setSongTitle] = useState('');
-  const [artist, setArtist] = useState('');
-  const [selectedMood, setSelectedMood] = useState('');
-  const [personalNote, setPersonalNote] = useState('');
+  // When editing, the form starts with the saved values.
+  const [songTitle, setSongTitle] = useState(songToEdit?.title ?? '');
+  const [artist, setArtist] = useState(songToEdit?.artist ?? '');
+  const [selectedMood, setSelectedMood] = useState(songToEdit?.mood ?? '');
+  const [personalNote, setPersonalNote] = useState(songToEdit?.note ?? '');
   // The iTunes result the user picked, so we can keep its artwork and preview.
   const [selectedSong, setSelectedSong] = useState<SearchResult | null>(null);
+
 
   // Search the iTunes catalogue and show the results.
   const searchSongs = async () => {
@@ -63,14 +69,19 @@ export default function AddSongScreen({ navigation }: Props) {
       return;
     }
 
-    const saved = await addSong({
+    const data = {
       title: songTitle.trim(),
       artist: artist.trim(),
       mood: selectedMood,
       note: personalNote.trim(),
-      artworkUrl: selectedSong?.artworkUrl100,
-      previewUrl: selectedSong?.previewUrl,
-    });
+      // Use the new iTunes song if one was picked, otherwise keep the old artwork/preview.
+      artworkUrl: selectedSong?.artworkUrl100 ?? songToEdit?.artworkUrl,
+      previewUrl: selectedSong?.previewUrl ?? songToEdit?.previewUrl,
+    };
+
+    const saved = songToEdit
+      ? await updateSong(songToEdit.id, data)
+      : await addSong(data);
 
     if (saved) {
       haptics.success();
@@ -81,12 +92,16 @@ export default function AddSongScreen({ navigation }: Props) {
   return (
     <ScreenFrame>
       <View style={styles.screenContent}>
-        <Text style={styles.eyebrow}>A NEW MEMORY ♡</Text>
-        <Text style={styles.screenTitle}>add a song</Text>
-        <Text style={styles.subtitle}>choose a song and keep the feeling.</Text>
+        <Text style={styles.eyebrow}>{isEditing ? 'EDIT A MEMORY ♡' : 'A NEW MEMORY ♡'}</Text>
+        <Text style={styles.screenTitle}>{isEditing ? 'edit song' : 'add a song'}</Text>
+        <Text style={styles.subtitle}>
+          {isEditing ? 'change how this song feels to you.' : 'choose a song and keep the feeling.'}
+        </Text>
 
         <View style={styles.formCard}>
-          <Text style={styles.sectionLabel}>01 / FIND YOUR SONG</Text>
+          <Text style={styles.sectionLabel}>
+            {isEditing ? '01 / CHANGE THE SONG (OPTIONAL)' : '01 / FIND YOUR SONG'}
+          </Text>
           <TextInput
             style={styles.input}
             placeholder="Search song or artist..."
@@ -175,7 +190,9 @@ export default function AddSongScreen({ navigation }: Props) {
         </View>
 
         <Pressable style={styles.primaryButton} onPress={saveSong}>
-          <Text style={styles.primaryButtonText}>♡  SAVE TO MY DIARY  ♡</Text>
+          <Text style={styles.primaryButtonText}>
+            {isEditing ? '♡  SAVE CHANGES  ♡' : '♡  SAVE TO MY DIARY  ♡'}
+          </Text>
         </Pressable>
 
         <Pressable style={styles.textButton} onPress={() => navigation.goBack()}>

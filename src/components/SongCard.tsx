@@ -6,13 +6,15 @@ import { MOODS } from '../constants/moods';
 type Props = {
   song: Song;
   onDelete: (id: string) => void;
+  onEdit: (id: string) => void;
   isPlaying: boolean;
   onTogglePreview: (song: Song) => void;
 };
 
 
+
 // One saved song in the diary, with its mood, note and a delete button.
-export default function SongCard({ song, onDelete, isPlaying, onTogglePreview }: Props) {
+export default function SongCard({ song, onDelete, onEdit, isPlaying, onTogglePreview }: Props) {
   // Find the symbol for this song's mood (e.g. ☀ for Happy), if it has one.
   const moodInfo = MOODS.find((mood) => mood.name === song.mood);
 
@@ -57,9 +59,15 @@ export default function SongCard({ song, onDelete, isPlaying, onTogglePreview }:
 
       {song.note !== '' && <Text style={styles.songNote}>“{song.note}”</Text>}
 
-      <Pressable style={styles.deleteButton} onPress={() => onDelete(song.id)}>
-        <Text style={styles.deleteButtonText}>♥  REMOVE FROM DIARY</Text>
-      </Pressable>
+      <View style={styles.cardActions}>
+        <Pressable onPress={() => onEdit(song.id)}>
+          <Text style={styles.deleteButtonText}>✎  EDIT</Text>
+        </Pressable>
+        <Pressable onPress={() => onDelete(song.id)}>
+          <Text style={styles.deleteButtonText}>♥  REMOVE FROM DIARY</Text>
+        </Pressable>
+      </View>
+      
     </View>
   );
 }

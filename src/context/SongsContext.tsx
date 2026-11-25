@@ -10,6 +10,7 @@ type SongsContextValue = {
   songs: Song[];
   addSong: (data: NewSong) => Promise<boolean>;
   deleteSong: (id: string) => Promise<void>;
+  updateSong: (id: string, data: NewSong) => Promise<boolean>;  
 };
 
 const SongsContext = createContext<SongsContextValue | undefined>(undefined);
@@ -49,6 +50,22 @@ export function SongsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Replace the details of an existing song. Its id and date stay the same.
+  const updateSong = async (id: string, data: NewSong) => {
+    const updatedSongs = songs.map((song) =>
+      song.id === id ? { ...song, ...data } : song
+    );
+
+    try {
+      await storage.saveSongs(updatedSongs);
+      setSongs(updatedSongs);
+      return true;
+    } catch (error) {
+      Alert.alert('Error', 'Could not update your song.');
+      return false;
+    }
+  };
+
   // Remove a song by id and save the new list.
   const deleteSong = async (id: string) => {
     const updatedSongs = songs.filter((song) => song.id !== id);
@@ -62,7 +79,7 @@ export function SongsProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <SongsContext.Provider value={{ songs, addSong, deleteSong }}>
+    <SongsContext.Provider value={{ songs, addSong, deleteSong, updateSong }}>
       {children}
     </SongsContext.Provider>
   );
