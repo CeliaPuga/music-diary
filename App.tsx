@@ -76,15 +76,33 @@ export default function App() {
   setPersonalNote('');
 };
 
-  const deleteSong = async (index: number) => {
-    const updatedSongs = songs.filter((song, songIndex) => songIndex !== index);
+  const deleteSong = (index: number) => {
+    Alert.alert(
+      'Delete song',
+      'Are you sure you want to delete this song?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const updatedSongs = songs.filter(
+              (song, songIndex) => songIndex !== index
+            );
 
-    try {
-      await AsyncStorage.setItem('songs', JSON.stringify(updatedSongs));
-      setSongs(updatedSongs);
-    } catch (error) {
-      Alert.alert('Error', 'Could not delete the song.');
-    }
+            try {
+              await AsyncStorage.setItem('songs', JSON.stringify(updatedSongs));
+              setSongs(updatedSongs);
+            } catch (error) {
+              Alert.alert('Error', 'Could not delete the song.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   // Search for real songs using the iTunes API
@@ -257,7 +275,7 @@ export default function App() {
               <Text style={styles.addButtonText}>Search</Text>
             </Pressable>
 
-            
+
             {searchResults.map((song, index) => (
               <Pressable
                 key={song.trackId}
