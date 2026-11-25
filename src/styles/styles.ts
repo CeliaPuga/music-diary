@@ -678,4 +678,24 @@ export const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#E8AEB8',
   },
+    previewButton: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F5C9CD',
+    borderWidth: 2,
+    borderColor: '#D995A3',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    marginTop: 10,
+  },
+  previewButtonActive: {
+    backgroundColor: '#C8798C',
+    borderColor: '#9E526B',
+  },
+  previewButtonText: {
+    color: '#713F50',
+    fontSize: 9,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    fontFamily: 'monospace',
+  },
 });

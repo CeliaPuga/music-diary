@@ -5,10 +5,13 @@ import { styles } from '../styles/styles';
 type Props = {
   song: Song;
   onDelete: (id: string) => void;
+  isPlaying: boolean;
+  onTogglePreview: (song: Song) => void;
 };
 
+
 // One saved song in the diary, with its mood, note and a delete button.
-export default function SongCard({ song, onDelete }: Props) {
+export default function SongCard({ song, onDelete, isPlaying, onTogglePreview }: Props) {
   return (
     <View style={styles.songCard}>
       <View style={styles.songCardTop}>
@@ -28,6 +31,18 @@ export default function SongCard({ song, onDelete }: Props) {
       <View style={styles.songMeta}>
         <Text style={styles.songMetaText}>MOOD: {song.mood || 'NOT SET'}</Text>
       </View>
+
+      {/* Solo aparece si la canción tiene previewUrl. Las antiguas y las escritas a mano no tendrán botón. */}
+      {song.previewUrl && (
+        <Pressable
+          style={[styles.previewButton, isPlaying && styles.previewButtonActive]}
+          onPress={() => onTogglePreview(song)}
+        >
+          <Text style={styles.previewButtonText}>
+            {isPlaying ? '■  STOP PREVIEW' : '▶  PLAY PREVIEW'}
+          </Text>
+        </Pressable>
+      )}
 
       {song.note !== '' && <Text style={styles.songNote}>“{song.note}”</Text>}
 

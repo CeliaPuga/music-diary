@@ -5,11 +5,14 @@ import { useSongs } from '../context/SongsContext';
 import ScreenFrame from '../components/ScreenFrame';
 import SongCard from '../components/SongCard';
 import { styles } from '../styles/styles';
+import { usePreviewPlayer } from '../hooks/usePreviewPlayer';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Diary'>;
 
 export default function DiaryScreen({ navigation }: Props) {
   const { songs, deleteSong } = useSongs();
+
+  const { playingId, togglePreview } = usePreviewPlayer();
 
   // Ask for confirmation before deleting a song.
   const confirmDelete = (id: string) => {
@@ -53,7 +56,13 @@ export default function DiaryScreen({ navigation }: Props) {
           </View>
         ) : (
           songs.map((song) => (
-            <SongCard key={song.id} song={song} onDelete={confirmDelete} />
+            <SongCard
+              key={song.id}
+              song={song}
+              onDelete={confirmDelete}
+              isPlaying={playingId === song.id}
+              onTogglePreview={togglePreview}
+            />
           ))
         )}
 
